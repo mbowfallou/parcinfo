@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+
+  app-parcinfo:
+    container_name: ctn_parcinfo
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: img_parcinfo
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    environment:
+      spring.datasource.url: jdbc:mysql://mysql-db:3306/parcinfo-db?createDatabseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true
+      spring.datasource.username: user
+      spring.datasource.password: user
+    depends_on:
+      - mysql-db
+    links:
+      - "mysql-db:database"
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: ctn_mysql_parc
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: parcinfo-db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data_parc:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+
+
+  phpmyadmin-app:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: ctn_pma_parc
+    restart: unless-stopped
+    ports:
+      - 8087:80
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      PMA_HOST: mysql-db
+      PMA_USER: user
+      PMA_PASSWORD: user
+    depends_on:
+      - mysql-db
+
+volumes:
+  mysql_data_parc:
+    driver: local
