@@ -20,7 +20,6 @@ import isi.afagroupe.mapping.AppRoleMapper;
 
 @Service
 @AllArgsConstructor
-
 public class AppRoleService {
 
     private AppRoleRepository appRoleRepository;
@@ -30,13 +29,13 @@ public class AppRoleService {
     @Transactional(readOnly = true)
     public List<AppRole> getAppRoles() {
         return StreamSupport.stream(appRoleRepository.findAll().spliterator(), false)
-                .map(appRoleMapper::toAppRole)
+                .map(appRoleMapper.INSTANCE::toAppRole)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public AppRole getAppRole(Integer id) {
-        return appRoleMapper.toAppRole(appRoleRepository.findById(id)
+        return appRoleMapper.INSTANCE.toAppRole(appRoleRepository.findById(id)
                 .orElseThrow(
                         () -> new EntityNotFoundException(messageSource.getMessage("appRoleId.notfound", new Object[]{id}, Locale.getDefault()))
                 )
@@ -45,7 +44,7 @@ public class AppRoleService {
 
     @Transactional(readOnly = true)
     public AppRole getAppRoleByName(String name) {
-        return appRoleMapper.toAppRole(Optional.ofNullable(appRoleRepository.findByNom(name))
+        return appRoleMapper.INSTANCE.toAppRole(Optional.ofNullable(appRoleRepository.findByNom(name))
                 .orElseThrow(() ->
                         new EntityNotFoundException(messageSource.getMessage("appRoleNom.notfound", new Object[]{name},
                                 Locale.getDefault()))));
@@ -53,7 +52,7 @@ public class AppRoleService {
 
     @Transactional
     public AppRole createAppRole(AppRole AppRole) {
-        return appRoleMapper.toAppRole(appRoleRepository.save(appRoleMapper.fromAppRole(AppRole)));
+        return appRoleMapper.INSTANCE.toAppRole(appRoleRepository.save(appRoleMapper.fromAppRole(AppRole)));
     }
 
     @Transactional
@@ -61,7 +60,7 @@ public class AppRoleService {
         return appRoleRepository.findById(id)
                 .map(entity -> {
                     appRole.setId(id);
-                    return appRoleMapper.toAppRole(appRoleRepository.save(appRoleMapper.fromAppRole(appRole)));
+                    return appRoleMapper.INSTANCE.toAppRole(appRoleRepository.save(appRoleMapper.fromAppRole(appRole)));
                 })
                 .orElseThrow(
                         () -> new EntityNotFoundException(messageSource.getMessage("appRoleId.notfound", new Object[]{id}, Locale.getDefault()))
